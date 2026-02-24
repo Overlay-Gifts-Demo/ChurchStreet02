@@ -1,0 +1,55 @@
+<style>
+  body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+
+  /* THE CURTAIN: Blocks everything, including the blue screen */
+  #blackCurtain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 99999; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+  }
+
+  #loader {
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+  }
+
+  .button-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none; 
+    z-index: 100;
+  }
+
+  .plan-button {
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #5E0F8B 0%, #3e0a5c 100%);
+    color: #fff;
+    cursor: pointer;
+    min-width: 180px;
+  }
+
+  /* Force-hide any MindAR UI elements that try to pop up */
+  [class^="mindar-ui"], [id^="mindar-ui"] { display: none !important; }
+</style>

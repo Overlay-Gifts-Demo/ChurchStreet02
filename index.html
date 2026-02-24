@@ -1,30 +1,71 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JEWELS-AI | Fast Drive AR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
     <style>
-      body { margin: 0; overflow: hidden; }
-      #ui { 
-        position: absolute; bottom: 20px; left: 50%; 
-        transform: translateX(-50%); z-index: 1000; 
+      body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+
+      /* THE SHIELD: Blocks everything, including the blue screen */
+      #blackCurtain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        z-index: 99999; /* Higher than any MindAR element */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.5s ease;
       }
+
+      #loader {
+        color: white;
+        text-align: center;
+        font-size: 18px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+      }
+
+      #ui { 
+        position: absolute; bottom: 30px; left: 50%; 
+        transform: translateX(-50%); z-index: 1000; 
+        display: none; /* Hidden until camera is ready */
+      }
+
       button { 
-        padding: 15px 30px; background: #FFD700; 
-        border: none; border-radius: 50px; 
+        padding: 15px 30px; background: #5E0F8B; 
+        color: white; border: none; border-radius: 50px; 
         font-weight: bold; cursor: pointer;
         box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       }
+
+      /* Brute-force hide any MindAR UI classes */
+      [class^="mindar-ui"], [id^="mindar-ui"] { display: none !important; }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
+    <div id="blackCurtain">
+      <div id="loader">Initializing JEWELS-AI...</div>
+    </div>
+
     <div id="ui">
       <button id="playBtn">START AR EXPERIENCE</button>
     </div>
 
     <a-scene id="ar-scene" 
-             mindar-image="imageTargetSrc: ./targets/placeholder.mind;" 
+             mindar-image="imageTargetSrc: ./targets/placeholder.mind; uiLoading: no; uiError: no;" 
              color-space="sRGB" 
              renderer="colorManagement: true, physicallyCorrectLights" 
              vr-mode-ui="enabled: false" 
@@ -37,10 +78,48 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity id="example-target" mindar-image-target="targetIndex: 0">
-        <a-video src="#ar-video" width="1" height="0.55" position="0 0 0"></a-video>
+        <a-video id="videoPlane" src="#ar-video" width="1" height="0.55" position="0 0 0" visible="false"></a-video>
       </a-entity>
     </a-scene>
 
-    <script src="script.js"></script>
-  </body>
+    <script>
+      window.addEventListener("load", () => {
+        const sceneEl = document.querySelector('a-scene');
+        const curtain = document.querySelector("#blackCurtain");
+        const ui = document.querySelector("#ui");
+        const videoEl = document.querySelector("#ar-video");
+        const videoPlane = document.querySelector("#videoPlane");
+        const playBtn = document.querySelector("#playBtn");
+
+        /* --- 1. THE UI KILLER --- */
+        // Runs every 100ms to delete blue UI elements immediately
+        const uiKiller = setInterval(() => {
+          const uiElements = document.querySelectorAll('[class^="mindar-ui"], [id^="mindar-ui"]');
+          uiElements.forEach(el => el.remove());
+        }, 100);
+
+        /* --- 2. READY TRANSITION --- */
+        // Only remove the curtain once AR engine confirms it is live
+        sceneEl.addEventListener("arReady", () => {
+          curtain.style.opacity = "0";
+          setTimeout(() => {
+            curtain.style.display = "none";
+            ui.style.display = "block"; // Show the start button
+            clearInterval(uiKiller);
+          }, 500);
+        });
+
+        /* --- 3. VIDEO FLICKER FIX --- */
+        // Show video geometry only when playback actually starts
+        videoEl.addEventListener('playing', () => {
+          videoPlane.setAttribute('visible', 'true');
+        });
+
+        playBtn.addEventListener("click", () => {
+          videoEl.play();
+          playBtn.style.display = "none"; // Hide button once experience starts
+        });
+      });
+    </script>
+</body>
 </html>

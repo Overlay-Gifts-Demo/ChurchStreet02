@@ -1,6 +1,6 @@
 /* ======================================================
    JEWELS-AI | ULTRA FAST DRIVE AR ENGINE
-   "Shield-Reveal" Version - Consolidated Logic
+   "Loop-Breaker" Version - Permissions Fix
 ====================================================== */
 
 const API_KEY = "AIzaSyC35sqqZA1YaxZ-F4PJaDqQpKBxPyMKOzw";
@@ -16,13 +16,11 @@ AFRAME.registerShader('chromakey', {
     threshold: { type: 'number', default: 0.3 },
     smoothness: { type: 'number', default: 0.05 }
   },
-
   init: function (data) {
     const videoTexture = new THREE.VideoTexture(data.src);
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     videoTexture.generateMipmaps = false;
-
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         tex: { value: videoTexture },
@@ -64,11 +62,9 @@ async function getLatestVideo() {
   try {
     const cachedId = localStorage.getItem("latestVideoId");
     if (cachedId) return cachedId;
-
     const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'video/'&orderBy=modifiedTime desc&pageSize=1&fields=files(id)&key=${API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
-
     if (data.files && data.files.length > 0) {
       const fileId = data.files[0].id;
       localStorage.setItem("latestVideoId", fileId);
@@ -96,46 +92,44 @@ window.addEventListener("load", async () => {
   let isRevealed = false;
   let videoLoaded = false;
 
-  /* --- 1. THE UI KILLER --- */
-  // Deletes any blue UI elements MindAR tries to create 10 times per second
-  const uiKiller = setInterval(() => {
-    const uiElements = document.querySelectorAll('[class^="mindar-ui"], [id^="mindar-ui"]');
-    uiElements.forEach(el => el.remove());
-  }, 100);
-
-  /* --- 2. REVEAL LOGIC --- */
+  // 1. REVEAL FUNCTION: Safely fades out the curtain
   const revealScanner = () => {
     if (isRevealed) return;
     isRevealed = true;
-    
     if (curtain) {
       curtain.style.opacity = "0";
       setTimeout(() => {
         curtain.style.display = "none";
-        if (ui) ui.style.display = "block"; // Show the START button
-        clearInterval(uiKiller);
+        if (ui) ui.style.display = "block"; 
       }, 500);
     }
   };
 
-  // SAFETY TIMER: Force reveal after 6 seconds to show permission prompts
-  const safetyTimeout = setTimeout(() => {
-    console.log("JEWELS-AI: Safety trigger opening curtain.");
+  // 2. THE LOOP BREAKER: Force reveal after 4 seconds to show permissions
+  const loopBreaker = setTimeout(() => {
+    console.warn("JEWELS-AI: Triggering loop breaker for permissions.");
     revealScanner();
-  }, 6000);
+  }, 4000);
 
-  // READY LISTENERS
+  // 3. READY LISTENERS
   sceneEl.addEventListener("arReady", () => {
-    clearTimeout(safetyTimeout);
+    clearTimeout(loopBreaker);
     revealScanner();
   });
 
   sceneEl.addEventListener("renderstart", () => {
-    clearTimeout(safetyTimeout);
+    clearTimeout(loopBreaker);
     revealScanner();
   });
 
-  /* --- 3. VIDEO & TRACKING LOGIC --- */
+  // Handle errors (like user clicking 'Block')
+  sceneEl.addEventListener("arError", () => {
+    clearTimeout(loopBreaker);
+    revealScanner();
+    console.error("JEWELS-AI: AR Error - Check camera permissions.");
+  });
+
+  // 4. VIDEO & TRACKING LOGIC
   videoEl.addEventListener('playing', () => {
     if (videoPlane) videoPlane.setAttribute('visible', 'true');
   });
@@ -159,7 +153,7 @@ window.addEventListener("load", async () => {
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       videoEl.play();
-      ui.style.display = "none"; // Hide button after clicking
+      ui.style.display = "none"; 
     });
   }
 });

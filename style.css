@@ -1,94 +1,129 @@
 <style>
-  /* 1. RESET & BASE STYLES */
-  body { 
-    margin: 0; 
-    background: #000; 
-    overflow: hidden; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-  }
 
-  /* 2. THE BLACK CURTAIN: High-priority shield to block the blue screen */
-  #blackCurtain {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 99999; /* Absolute top-most layer to hide MindAR glitches */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.5s ease; /* Professional fade-out when AR is ready */
-  }
+/* =========================================
+   JEWELS-AI | STABLE PRODUCTION CSS
+========================================= */
 
-  /* 3. LOADER ANIMATION (Jewels-AI Style) */
-  #loader {
-    color: white;
-    text-align: center;
-    font-size: 18px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    animation: pulse 1.5s infinite;
-  }
+/* 1️⃣ RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  @keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 1; }
-    100% { opacity: 0.4; }
-  }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  /* 4. BUTTON PANEL: Centered at the bottom */
-  #ui, .button-panel { 
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000; /* Stays visible once curtain fades */
-    display: none; /* Initially hidden until AR is ready */
-  }
+/* 2️⃣ AR SCENE & CANVAS FIX */
+a-scene,
+.a-canvas,
+canvas {
+  background-color: #000 !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+}
 
-  /* 5. START BUTTON: Premium Purple Branding */
-  button, .plan-button { 
-    padding: 16px 32px; 
-    background: #5E0F8B; /* Your brand purple */
-    color: white; 
-    border: none; 
-    border-radius: 50px; 
-    font-weight: bold; 
-    font-size: 14px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-  }
+/* Prevent white/blue flash */
+video {
+  background: transparent !important;
+}
 
-  button:hover {
-    background: #4a0c6d;
-    transform: translateY(-2px);
-    box-shadow: 0px 12px 20px rgba(0,0,0,0.4);
-  }
+/* 3️⃣ BLACK CURTAIN (Boot Shield) */
+#blackCurtain {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
 
-  button:active {
-    transform: translateY(1px);
-    transform: scale(0.95);
-  }
+/* 4️⃣ LOADER TEXT */
+#loader {
+  color: #ffffff;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: pulse 1.5s infinite ease-in-out;
+}
 
-  /* 6. BRUTE-FORCE LOCKDOWN: Forces internal MindAR elements to disappear */
-  [class^="mindar-ui"], 
-  [id^="mindar-ui"],
-  .mindar-ui-overlay,
-  .mindar-ui-loading,
-  .mindar-ui-compatibility { 
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
 
-  /* 7. CANVAS RESET: Keeps background black until camera initializes */
-  a-scene, .a-canvas {
-    background-color: #000 !important;
-  }
+/* 5️⃣ BUTTON CONTAINER */
+#ui,
+.button-panel {
+  position: fixed;
+  bottom: calc(30px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: none;
+}
+
+/* 6️⃣ PREMIUM BUTTON */
+button,
+.plan-button {
+  padding: 16px 34px;
+  background: #5E0F8B;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+button:hover {
+  background: #4a0c6d;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+}
+
+/* Click */
+button:active {
+  transform: scale(0.96);
+}
+
+/* 7️⃣ MINDAR UI HARD BLOCK */
+[class^="mindar-ui"],
+[id^="mindar-ui"],
+.mindar-ui-overlay,
+.mindar-ui-loading,
+.mindar-ui-compatibility {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 8️⃣ PREVENT SCROLL / ZOOM ISSUES */
+body {
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* 9️⃣ SMOOTH FADE WHEN CURTAIN REMOVED */
+#blackCurtain.fade-out {
+  opacity: 0;
+}
+
 </style>

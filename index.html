@@ -3,13 +3,22 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JEWELS-AI | Fast Drive AR</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    
-    <style>
-      body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
 
-      /* THE SHIELD: Blocks everything, including the blue screen */
+    <!-- AFRAME -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <!-- MINDAR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      body { 
+        margin: 0; 
+        background: #000; 
+        overflow: hidden; 
+        font-family: 'Segoe UI', sans-serif; 
+      }
+
+      /* BLACK CURTAIN */
       #blackCurtain {
         position: fixed;
         top: 0;
@@ -17,7 +26,7 @@
         width: 100vw;
         height: 100vh;
         background: #000;
-        z-index: 99999; 
+        z-index: 99999;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -34,114 +43,95 @@
       }
 
       @keyframes pulse {
-        0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+        0% { opacity: 0.4; }
+        50% { opacity: 1; }
+        100% { opacity: 0.4; }
       }
 
+      /* UI BUTTON */
       #ui { 
-        position: absolute; bottom: 30px; left: 50%; 
-        transform: translateX(-50%); z-index: 1000; 
-        display: none; 
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: none;
       }
 
       button { 
-        padding: 15px 30px; background: #5E0F8B; 
-        color: white; border: none; border-radius: 50px; 
-        font-weight: bold; cursor: pointer;
+        padding: 15px 30px;
+        background: #5E0F8B;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
         box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       }
 
-      /* Force-hide any MindAR UI classes */
-      [class^="mindar-ui"], [id^="mindar-ui"] { display: none !important; }
+      /* Hide MindAR default UI */
+      [class^="mindar-ui"], 
+      [id^="mindar-ui"] { 
+        display: none !important; 
+      }
+
+      /* Force black background until camera loads */
+      a-scene, .a-canvas {
+        background-color: #000 !important;
+      }
     </style>
 </head>
 
 <body>
+
+    <!-- LOADING CURTAIN -->
     <div id="blackCurtain">
       <div id="loader">Initializing JEWELS-AI...</div>
     </div>
 
+    <!-- START BUTTON -->
     <div id="ui">
       <button id="playBtn">START AR EXPERIENCE</button>
     </div>
 
+    <!-- AR SCENE -->
     <a-scene id="ar-scene" 
-             mindar-image="imageTargetSrc: ./targets/placeholder.mind; autoStart: true; uiLoading: no; uiError: no;" 
+             mindar-image="imageTargetSrc: ./targets/placeholder.mind; uiLoading: no; uiError: no;"
              color-space="sRGB" 
-             renderer="colorManagement: true, physicallyCorrectLights" 
-             vr-mode-ui="enabled: false" 
+             renderer="colorManagement: true, physicallyCorrectLights"
+             vr-mode-ui="enabled: false"
              device-orientation-permission-ui="enabled: false">
-      
+
       <a-assets>
-        <video id="ar-video" loop="true" crossorigin="anonymous" playsinline webkit-playsinline></video>
+        <video id="ar-video"
+               loop="true"
+               crossorigin="anonymous"
+               playsinline
+               webkit-playsinline>
+        </video>
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0"
+                look-controls="enabled: false">
+      </a-camera>
 
-      <a-entity id="example-target" mindar-image-target="targetIndex: 0">
-        <a-video id="videoPlane" src="#ar-video" width="1" height="0.55" position="0 0 0" visible="false"></a-video>
+      <a-entity id="example-target"
+                mindar-image-target="targetIndex: 0">
+
+        <a-video id="videoPlane"
+                 src="#ar-video"
+                 width="1"
+                 height="0.55"
+                 position="0 0 0"
+                 visible="false">
+        </a-video>
+
       </a-entity>
+
     </a-scene>
 
-    <script>
-      window.addEventListener("load", () => {
-        const sceneEl = document.querySelector('a-scene');
-        const curtain = document.querySelector("#blackCurtain");
-        const ui = document.querySelector("#ui");
-        const videoEl = document.querySelector("#ar-video");
-        const videoPlane = document.querySelector("#videoPlane");
-        const playBtn = document.querySelector("#playBtn");
+    <!-- LOAD YOUR MAIN SCRIPT -->
+    <script src="./script.js"></script>
 
-        let isCurtainRemoved = false;
-
-        /* --- 1. THE UI KILLER --- */
-        const uiKiller = setInterval(() => {
-          const uiElements = document.querySelectorAll('[class^="mindar-ui"], [id^="mindar-ui"]');
-          uiElements.forEach(el => el.remove());
-        }, 100);
-
-        /* --- 2. REVEAL LOGIC --- */
-        const revealScanner = () => {
-          if (isCurtainRemoved) return;
-          isCurtainRemoved = true;
-          
-          curtain.style.opacity = "0";
-          setTimeout(() => {
-            curtain.style.display = "none";
-            ui.style.display = "block"; 
-            clearInterval(uiKiller);
-          }, 500);
-        };
-
-        // SAFETY TIMER: Force open after 6 seconds if events fail to fire
-        const safetyTimer = setTimeout(() => {
-          console.log("Safety Trigger: Force opening curtain");
-          revealScanner();
-        }, 6000);
-
-        // Listen for standard MindAR ready signal
-        sceneEl.addEventListener("arReady", () => {
-          console.log("AR Ready signal received");
-          clearTimeout(safetyTimer);
-          revealScanner();
-        });
-
-        // Listen for camera pixels actually rendering (often more reliable)
-        sceneEl.addEventListener("renderstart", () => {
-          console.log("Render start detected");
-          clearTimeout(safetyTimer);
-          revealScanner();
-        });
-
-        /* --- 3. VIDEO FLICKER FIX --- */
-        videoEl.addEventListener('playing', () => {
-          videoPlane.setAttribute('visible', 'true');
-        });
-
-        playBtn.addEventListener("click", () => {
-          videoEl.play();
-          playBtn.style.display = "none"; 
-        });
-      });
-    </script>
 </body>
 </html>

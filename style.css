@@ -1,7 +1,13 @@
 <style>
-  body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+  /* 1. RESET & BASE STYLES */
+  body { 
+    margin: 0; 
+    background: #000; 
+    overflow: hidden; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-  /* THE CURTAIN: Blocks everything, including the blue screen */
+  /* 2. THE BLACK CURTAIN: High-priority shield to block the blue screen */
   #blackCurtain {
     position: fixed;
     top: 0;
@@ -9,13 +15,14 @@
     width: 100vw;
     height: 100vh;
     background: #000;
-    z-index: 99999; 
+    z-index: 99999; /* Absolute top-most layer to hide MindAR glitches */
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease; /* Smooth reveal when AR is ready */
   }
 
+  /* 3. LOADER ANIMATION */
   #loader {
     color: white;
     text-align: center;
@@ -26,30 +33,50 @@
   }
 
   @keyframes pulse {
-    0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
   }
 
-  .button-panel {
+  /* 4. BUTTON PANEL: Positioned for easy user interaction */
+  #ui, .button-panel { 
     position: absolute;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    display: none; 
-    z-index: 100;
+    z-index: 1000; /* Stays visible once curtain fades */
+    display: none; /* Hidden initially by JavaScript */
   }
 
-  .plan-button {
-    padding: 14px 28px;
-    font-size: 16px;
-    font-weight: bold;
+  /* 5. START BUTTON STYLING */
+  button, .plan-button { 
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #5E0F8B 0%, #3e0a5c 100%); /* Brand purple */
+    color: white;
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #5E0F8B 0%, #3e0a5c 100%);
-    color: #fff;
+    border-radius: 50px;
+    font-weight: bold;
     cursor: pointer;
-    min-width: 180px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
   }
 
-  /* Force-hide any MindAR UI elements that try to pop up */
-  [class^="mindar-ui"], [id^="mindar-ui"] { display: none !important; }
+  button:active {
+    transform: scale(0.95);
+  }
+
+  /* 6. BRUTE-FORCE LOCKDOWN: Hide internal MindAR UI elements */
+  [class^="mindar-ui"], 
+  [id^="mindar-ui"],
+  .mindar-ui-overlay,
+  .mindar-ui-loading { 
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* 7. CANVAS COLOR: Ensure the background remains black until camera is live */
+  a-scene, .a-canvas {
+    background-color: #000 !important;
+  }
 </style>

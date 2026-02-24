@@ -1,141 +1,82 @@
 <style>
-
-/* ==================================================
-   JEWELS-AI | FINAL PRODUCTION CSS
-   Stable • Clean • Premium
-================================================== */
-
-/* 1️⃣ GLOBAL RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: none;
-  overscroll-behavior: none;
-}
-
-/* 2️⃣ SCENE & CANVAS FIX */
-a-scene,
-.a-canvas,
-canvas {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  background: #000 !important;
-}
-
-/* Prevent initial flash */
-video {
-  background: transparent !important;
-}
-
-/* 3️⃣ BLACK CURTAIN (Boot Shield) */
-#blackCurtain {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  z-index: 99999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.5s ease;
-}
-
-/* Optional fade class (if you use it later) */
-#blackCurtain.fade-out {
-  opacity: 0;
-}
-
-/* 4️⃣ LOADER TEXT */
-#loader {
-  color: #ffffff;
-  font-size: 18px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
-}
-
-/* 5️⃣ BUTTON CONTAINER */
-#ui,
-.button-panel {
-  position: fixed;
-  bottom: calc(40px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: none;
-  text-align: center;
-}
-
-/* 6️⃣ PREMIUM BUTTON */
-button,
-.plan-button {
-  padding: 16px 36px;
-  background: #5E0F8B;
-  color: #ffffff;
-  border: none;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-  transition: all 0.25s ease;
-}
-
-/* Hover (desktop only) */
-@media (hover: hover) {
-  button:hover {
-    background: #4a0c6d;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+  /* 1. RESET & BASE STYLES */
+  body { 
+    margin: 0; 
+    background: #000; 
+    overflow: hidden; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   }
-}
 
-/* Active click */
-button:active {
-  transform: scale(0.96);
-}
+  /* 2. THE BLACK CURTAIN: Blocks everything, including the blue screen */
+  #blackCurtain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 99999; /* Higher priority than all MindAR elements */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease; /* Professional fade-out */
+  }
 
-/* 7️⃣ MINDAR UI HARD BLOCK */
-[class^="mindar-ui"],
-[id^="mindar-ui"],
-.mindar-ui-overlay,
-.mindar-ui-loading,
-.mindar-ui-compatibility {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+  /* 3. CUSTOM LOADER (Jewels-AI Style) */
+  #loader {
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: pulse 1.5s infinite;
+  }
 
-/* 8️⃣ EXTRA SAFETY FIXES */
-body::-webkit-scrollbar {
-  display: none;
-}
+  @keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
 
-/* Remove selection highlight */
-* {
-  user-select: none;
-  -webkit-user-select: none;
-}
+  /* 4. BUTTON PANEL STYLES */
+  .button-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none; 
+    z-index: 100;
+  }
 
+  .plan-button {
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #5E0F8B 0%, #3e0a5c 100%);
+    color: #fff;
+    cursor: pointer;
+    min-width: 180px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease;
+  }
+
+  .plan-button:active {
+    transform: scale(0.95);
+  }
+
+  /* 5. FORCE-HIDE ANY STRAY MINDAR ELEMENTS (LOCKDOWN) */
+  [class^="mindar-ui"],
+  [id^="mindar-ui"],
+  .mindar-ui-overlay {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* 6. SCENE & CANVAS RESET */
+  a-scene, .a-canvas {
+    background-color: #000 !important;
+  }
 </style>

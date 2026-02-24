@@ -1,8 +1,9 @@
-/* ===============================
+/* ======================================================
    JEWELS-AI | AR INTERACTION LOGIC
-   "Shield-Reveal" Version
-================================ */
+   "Shield-Reveal" Version - FORCE OPEN FIX
+====================================================== */
 window.addEventListener("load", async () => {
+  // Elements
   const videoEl = document.querySelector("#ar-video") || document.querySelector("#driveVideo");
   const videoPlane = document.querySelector("#videoPlane"); 
   const target = document.querySelector("#example-target") || document.querySelector("#target1");
@@ -11,7 +12,6 @@ window.addEventListener("load", async () => {
   const curtain = document.querySelector("#blackCurtain");
   const sceneEl = document.querySelector('a-scene');
 
-  let videoReady = false;
   let isRevealed = false;
 
   // 1. REVEAL FUNCTION: Fades out the black shield
@@ -28,8 +28,8 @@ window.addEventListener("load", async () => {
     }
   };
 
-  // 2. SAFETY TIMER: If arReady fails to fire in 6 seconds, force reveal.
-  // This allows you to see camera permission pop-ups or errors.
+  // 2. SAFETY TIMER: Force reveal after 6 seconds if arReady fails.
+  // This ensures you see camera permission pop-ups.
   const safetyTimeout = setTimeout(() => {
     console.log("JEWELS-AI: Safety trigger opening curtain.");
     revealScanner();
@@ -56,6 +56,7 @@ window.addEventListener("load", async () => {
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       videoEl.play();
+      // Hide button once experience starts
       playBtn.parentElement.style.display = "none"; 
     });
   }

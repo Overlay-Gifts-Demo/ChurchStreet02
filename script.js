@@ -1,12 +1,13 @@
 /* ======================================================
-   JEWELS-AI | STABLE DRIVE AR ENGINE (Clean Version)
+   JEWELS-AI | FINAL STABLE DRIVE AR ENGINE
+   Manual MindAR Start + Clean Permission Flow
 ====================================================== */
 
 const API_KEY = "AIzaSyC35sqqZA1YaxZ-F4PJaDqQpKBxPyMKOzw";
 const FOLDER_ID = "1fDj4lVzWcrXJnIQnljrC4-_SBEEV1dlz";
 
 /* ===============================
-   DRIVE FETCH (Optimized)
+   GOOGLE DRIVE FETCH
 ================================ */
 async function getLatestVideo() {
   try {
@@ -32,44 +33,58 @@ async function getLatestVideo() {
 }
 
 /* ===============================
-   AR ENGINE
+   MAIN AR ENGINE
 ================================ */
 window.addEventListener("DOMContentLoaded", () => {
 
-  const sceneEl   = document.querySelector("#ar-scene");
-  const videoEl   = document.querySelector("#ar-video");
-  const videoPlane= document.querySelector("#videoPlane");
-  const target    = document.querySelector("#example-target");
-  const curtain   = document.querySelector("#blackCurtain");
-  const ui        = document.querySelector("#ui");
-  const playBtn   = document.querySelector("#playBtn");
+  const sceneEl    = document.querySelector("#ar-scene");
+  const videoEl    = document.querySelector("#ar-video");
+  const videoPlane = document.querySelector("#videoPlane");
+  const target     = document.querySelector("#example-target");
+  const curtain    = document.querySelector("#blackCurtain");
+  const ui         = document.querySelector("#ui");
+  const playBtn    = document.querySelector("#playBtn");
 
   let videoLoaded = false;
   let curtainRemoved = false;
 
   /* ===============================
-     CURTAIN REVEAL
+     REVEAL FUNCTION
   =================================*/
   function revealScanner() {
     if (curtainRemoved) return;
     curtainRemoved = true;
 
-    if (curtain) {
-      curtain.style.opacity = "0";
-      setTimeout(() => {
-        curtain.style.display = "none";
-        if (ui) ui.style.display = "block";
-      }, 500);
-    }
+    curtain.style.opacity = "0";
+    setTimeout(() => {
+      curtain.style.display = "none";
+      if (ui) ui.style.display = "block";
+    }, 500);
   }
 
   /* ===============================
-     SAFETY TIMER (Permission fallback)
+     SAFETY TIMER (Fallback)
   =================================*/
   const safetyTimer = setTimeout(() => {
     console.warn("JEWELS-AI: Safety reveal triggered.");
     revealScanner();
-  }, 5000);
+  }, 6000);
+
+  /* ===============================
+     MANUAL MINDAR START
+  =================================*/
+  sceneEl.addEventListener("loaded", async () => {
+
+    const mindarSystem = sceneEl.systems["mindar-image"];
+
+    try {
+      await mindarSystem.start();
+      console.log("MindAR Started Successfully");
+    } catch (err) {
+      console.error("MindAR Start Error:", err);
+      revealScanner();
+    }
+  });
 
   /* ===============================
      MINDAR EVENTS
@@ -87,7 +102,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   sceneEl.addEventListener("arError", () => {
-    console.error("AR Error - Check camera permission");
+    console.error("AR Error - Camera permission denied?");
     clearTimeout(safetyTimer);
     revealScanner();
   });

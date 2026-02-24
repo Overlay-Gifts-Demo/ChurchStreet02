@@ -1,10 +1,11 @@
 <style>
 
-/* =========================================
-   JEWELS-AI | STABLE PRODUCTION CSS
-========================================= */
+/* ==================================================
+   JEWELS-AI | FINAL PRODUCTION CSS
+   Stable • Clean • Premium
+================================================== */
 
-/* 1️⃣ RESET */
+/* 1️⃣ GLOBAL RESET */
 * {
   margin: 0;
   padding: 0;
@@ -18,19 +19,23 @@ html, body {
   background: #000;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
-/* 2️⃣ AR SCENE & CANVAS FIX */
+/* 2️⃣ SCENE & CANVAS FIX */
 a-scene,
 .a-canvas,
 canvas {
-  background-color: #000 !important;
   position: absolute !important;
   top: 0;
   left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: #000 !important;
 }
 
-/* Prevent white/blue flash */
+/* Prevent initial flash */
 video {
   background: transparent !important;
 }
@@ -45,7 +50,11 @@ video {
   justify-content: center;
   align-items: center;
   transition: opacity 0.5s ease;
-  pointer-events: none;
+}
+
+/* Optional fade class (if you use it later) */
+#blackCurtain.fade-out {
+  opacity: 0;
 }
 
 /* 4️⃣ LOADER TEXT */
@@ -67,38 +76,41 @@ video {
 #ui,
 .button-panel {
   position: fixed;
-  bottom: calc(30px + env(safe-area-inset-bottom));
+  bottom: calc(40px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   display: none;
+  text-align: center;
 }
 
 /* 6️⃣ PREMIUM BUTTON */
 button,
 .plan-button {
-  padding: 16px 34px;
+  padding: 16px 36px;
   background: #5E0F8B;
-  color: #fff;
+  color: #ffffff;
   border: none;
   border-radius: 50px;
-  font-weight: 600;
   font-size: 14px;
+  font-weight: 600;
   letter-spacing: 1px;
-  cursor: pointer;
   text-transform: uppercase;
+  cursor: pointer;
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
   transition: all 0.25s ease;
 }
 
-/* Hover */
-button:hover {
-  background: #4a0c6d;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+/* Hover (desktop only) */
+@media (hover: hover) {
+  button:hover {
+    background: #4a0c6d;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+  }
 }
 
-/* Click */
+/* Active click */
 button:active {
   transform: scale(0.96);
 }
@@ -115,15 +127,15 @@ button:active {
   pointer-events: none !important;
 }
 
-/* 8️⃣ PREVENT SCROLL / ZOOM ISSUES */
-body {
-  touch-action: none;
-  overscroll-behavior: none;
+/* 8️⃣ EXTRA SAFETY FIXES */
+body::-webkit-scrollbar {
+  display: none;
 }
 
-/* 9️⃣ SMOOTH FADE WHEN CURTAIN REMOVED */
-#blackCurtain.fade-out {
-  opacity: 0;
+/* Remove selection highlight */
+* {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 </style>

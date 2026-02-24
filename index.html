@@ -1,137 +1,161 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>JEWELS-AI | Fast Drive AR</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JEWELS-AI | Fast Drive AR</title>
 
-    <!-- AFRAME -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- AFRAME -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-    <!-- MINDAR -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <!-- MINDAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <style>
-      body { 
-        margin: 0; 
-        background: #000; 
-        overflow: hidden; 
-        font-family: 'Segoe UI', sans-serif; 
-      }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      /* BLACK CURTAIN */
-      #blackCurtain {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #000;
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: opacity 0.5s ease;
-      }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-      #loader {
-        color: white;
-        text-align: center;
-        font-size: 18px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        animation: pulse 1.5s infinite;
-      }
+    a-scene,
+    .a-canvas,
+    canvas {
+      background: #000 !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+    }
 
-      @keyframes pulse {
-        0% { opacity: 0.4; }
-        50% { opacity: 1; }
-        100% { opacity: 0.4; }
-      }
+    /* BLACK CURTAIN */
+    #blackCurtain {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 99999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease;
+    }
 
-      /* UI BUTTON */
-      #ui { 
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        display: none;
-      }
+    #loader {
+      color: #fff;
+      font-size: 18px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.5s infinite;
+    }
 
-      button { 
-        padding: 15px 30px;
-        background: #5E0F8B;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-      }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
 
-      /* Hide MindAR default UI */
-      [class^="mindar-ui"], 
-      [id^="mindar-ui"] { 
-        display: none !important; 
-      }
+    /* START BUTTON */
+    #ui {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: none;
+    }
 
-      /* Force black background until camera loads */
-      a-scene, .a-canvas {
-        background-color: #000 !important;
-      }
-    </style>
+    button {
+      padding: 16px 34px;
+      background: #5E0F8B;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      transition: 0.25s ease;
+    }
+
+    button:hover {
+      background: #4a0c6d;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* HARD BLOCK MINDAR UI */
+    [class^="mindar-ui"],
+    [id^="mindar-ui"],
+    .mindar-ui-overlay,
+    .mindar-ui-loading,
+    .mindar-ui-compatibility {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
 </head>
 
 <body>
 
-    <!-- LOADING CURTAIN -->
-    <div id="blackCurtain">
-      <div id="loader">Initializing JEWELS-AI...</div>
-    </div>
+  <!-- LOADING CURTAIN -->
+  <div id="blackCurtain">
+    <div id="loader">Initializing JEWELS-AI...</div>
+  </div>
 
-    <!-- START BUTTON -->
-    <div id="ui">
-      <button id="playBtn">START AR EXPERIENCE</button>
-    </div>
+  <!-- START BUTTON -->
+  <div id="ui">
+    <button id="playBtn">START AR EXPERIENCE</button>
+  </div>
 
-    <!-- AR SCENE -->
-    <a-scene id="ar-scene" 
-             mindar-image="imageTargetSrc: ./targets/placeholder.mind; uiLoading: no; uiError: no;"
-             color-space="sRGB" 
-             renderer="colorManagement: true, physicallyCorrectLights"
-             vr-mode-ui="enabled: false"
-             device-orientation-permission-ui="enabled: false">
+  <!-- AR SCENE -->
+  <a-scene
+    id="ar-scene"
+    mindar-image="imageTargetSrc: ./targets/placeholder.mind; uiLoading: no; uiError: no;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
 
-      <a-assets>
-        <video id="ar-video"
-               loop="true"
-               crossorigin="anonymous"
-               playsinline
-               webkit-playsinline>
-        </video>
-      </a-assets>
+    <a-assets>
+      <video
+        id="ar-video"
+        loop
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous">
+      </video>
+    </a-assets>
 
-      <a-camera position="0 0 0"
-                look-controls="enabled: false">
-      </a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity id="example-target"
-                mindar-image-target="targetIndex: 0">
+    <a-entity id="example-target" mindar-image-target="targetIndex: 0">
+      <a-video
+        id="videoPlane"
+        src="#ar-video"
+        width="1"
+        height="0.55"
+        position="0 0 0"
+        visible="false">
+      </a-video>
+    </a-entity>
 
-        <a-video id="videoPlane"
-                 src="#ar-video"
-                 width="1"
-                 height="0.55"
-                 position="0 0 0"
-                 visible="false">
-        </a-video>
+  </a-scene>
 
-      </a-entity>
-
-    </a-scene>
-
-    <!-- LOAD YOUR MAIN SCRIPT -->
-    <script src="./script.js"></script>
+  <!-- YOUR MAIN JS -->
+  <script src="./script.js"></script>
 
 </body>
 </html>

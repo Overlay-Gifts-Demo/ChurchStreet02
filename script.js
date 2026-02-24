@@ -1,20 +1,109 @@
 /* ======================================================
-   JEWELS-AI | AR INTERACTION LOGIC
-   "Shield-Reveal" Version - FORCE OPEN FIX
+   JEWELS-AI | ULTRA FAST DRIVE AR ENGINE
+   "Shield-Reveal" Version - Consolidated Logic
 ====================================================== */
+
+const API_KEY = "AIzaSyC35sqqZA1YaxZ-F4PJaDqQpKBxPyMKOzw";
+const FOLDER_ID = "1fDj4lVzWcrXJnIQnljrC4-_SBEEV1dlz";
+
+/* ===============================
+   OPTIMIZED CHROMA KEY SHADER
+================================ */
+AFRAME.registerShader('chromakey', {
+  schema: {
+    src: { type: 'map' },
+    color: { type: 'color', default: '#00FF00' },
+    threshold: { type: 'number', default: 0.3 },
+    smoothness: { type: 'number', default: 0.05 }
+  },
+
+  init: function (data) {
+    const videoTexture = new THREE.VideoTexture(data.src);
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+    videoTexture.generateMipmaps = false;
+
+    this.material = new THREE.ShaderMaterial({
+      uniforms: {
+        tex: { value: videoTexture },
+        keyColor: { value: new THREE.Color(data.color) },
+        similarity: { value: data.threshold },
+        smoothness: { value: data.smoothness }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tex;
+        uniform vec3 keyColor;
+        uniform float similarity;
+        uniform float smoothness;
+        varying vec2 vUv;
+        void main() {
+          vec4 videoColor = texture2D(tex, vUv);
+          float diff = distance(videoColor.rgb, keyColor);
+          float alpha = smoothstep(similarity, similarity + smoothness, diff);
+          float dToCenter = distance(vUv, vec2(0.5, 0.5));
+          if (alpha < 0.1 || dToCenter > 0.5) discard;
+          gl_FragColor = vec4(videoColor.rgb, alpha);
+        }
+      `,
+      transparent: true
+    });
+  }
+});
+
+/* ===============================
+   FAST DRIVE FETCH
+================================ */
+async function getLatestVideo() {
+  try {
+    const cachedId = localStorage.getItem("latestVideoId");
+    if (cachedId) return cachedId;
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'video/'&orderBy=modifiedTime desc&pageSize=1&fields=files(id)&key=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.files && data.files.length > 0) {
+      const fileId = data.files[0].id;
+      localStorage.setItem("latestVideoId", fileId);
+      return fileId;
+    }
+    return null;
+  } catch (error) {
+    console.error("Drive Fetch Error:", error);
+    return null;
+  }
+}
+
+/* ===============================
+   AR INTERACTION LOGIC
+================================ */
 window.addEventListener("load", async () => {
-  // Elements
   const videoEl = document.querySelector("#ar-video") || document.querySelector("#driveVideo");
-  const videoPlane = document.querySelector("#videoPlane"); 
+  const videoPlane = document.querySelector("#videoPlane") || document.querySelector("#videoCircle");
   const target = document.querySelector("#example-target") || document.querySelector("#target1");
   const playBtn = document.querySelector("#playBtn");
-  const ui = document.querySelector("#ui");
+  const ui = document.querySelector("#ui") || document.querySelector("#planButtons");
   const curtain = document.querySelector("#blackCurtain");
   const sceneEl = document.querySelector('a-scene');
 
   let isRevealed = false;
+  let videoLoaded = false;
 
-  // 1. REVEAL FUNCTION: Fades out the black shield
+  /* --- 1. THE UI KILLER --- */
+  // Deletes any blue UI elements MindAR tries to create 10 times per second
+  const uiKiller = setInterval(() => {
+    const uiElements = document.querySelectorAll('[class^="mindar-ui"], [id^="mindar-ui"]');
+    uiElements.forEach(el => el.remove());
+  }, 100);
+
+  /* --- 2. REVEAL LOGIC --- */
   const revealScanner = () => {
     if (isRevealed) return;
     isRevealed = true;
@@ -24,40 +113,55 @@ window.addEventListener("load", async () => {
       setTimeout(() => {
         curtain.style.display = "none";
         if (ui) ui.style.display = "block"; // Show the START button
+        clearInterval(uiKiller);
       }, 500);
     }
   };
 
-  // 2. SAFETY TIMER: Force reveal after 6 seconds if arReady fails.
-  // This ensures you see camera permission pop-ups.
+  // SAFETY TIMER: Force reveal after 6 seconds to show permission prompts
   const safetyTimeout = setTimeout(() => {
     console.log("JEWELS-AI: Safety trigger opening curtain.");
     revealScanner();
   }, 6000);
 
-  // 3. READY LISTENERS: Open curtain when engine OR camera is ready
+  // READY LISTENERS
   sceneEl.addEventListener("arReady", () => {
-    console.log("JEWELS-AI: AR Ready.");
     clearTimeout(safetyTimeout);
     revealScanner();
   });
 
   sceneEl.addEventListener("renderstart", () => {
-    console.log("JEWELS-AI: Rendering started.");
     clearTimeout(safetyTimeout);
     revealScanner();
   });
 
-  // 4. VIDEO LOGIC
+  /* --- 3. VIDEO & TRACKING LOGIC --- */
   videoEl.addEventListener('playing', () => {
     if (videoPlane) videoPlane.setAttribute('visible', 'true');
+  });
+
+  target.addEventListener("targetFound", async () => {
+    if (!videoLoaded) {
+      const fileId = await getLatestVideo();
+      if (fileId) {
+        videoEl.src = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
+        videoEl.load();
+        videoLoaded = true;
+      }
+    }
+  });
+
+  target.addEventListener("targetLost", () => {
+    videoEl.pause();
+    if (videoPlane) videoPlane.setAttribute('visible', 'false'); 
   });
 
   if (playBtn) {
     playBtn.addEventListener("click", () => {
       videoEl.play();
-      // Hide button once experience starts
-      playBtn.parentElement.style.display = "none"; 
+      ui.style.display = "none"; // Hide button after clicking
     });
   }
 });
+
+document.addEventListener("contextmenu", (e) => e.preventDefault());

@@ -4,7 +4,7 @@
     margin: 0; 
     background: #000; 
     overflow: hidden; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   }
 
   /* 2. THE BLACK CURTAIN: High-priority shield to block the blue screen */
@@ -19,10 +19,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.5s ease; /* Smooth reveal when AR is ready */
+    transition: opacity 0.5s ease; /* Professional fade-out when AR is ready */
   }
 
-  /* 3. LOADER ANIMATION */
+  /* 3. LOADER ANIMATION (Jewels-AI Style) */
   #loader {
     color: white;
     text-align: center;
@@ -38,44 +38,56 @@
     100% { opacity: 0.4; }
   }
 
-  /* 4. BUTTON PANEL: Positioned for easy user interaction */
+  /* 4. BUTTON PANEL: Centered at the bottom */
   #ui, .button-panel { 
     position: absolute;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000; /* Stays visible once curtain fades */
-    display: none; /* Hidden initially by JavaScript */
+    display: none; /* Initially hidden until AR is ready */
   }
 
-  /* 5. START BUTTON STYLING */
+  /* 5. START BUTTON: Premium Purple Branding */
   button, .plan-button { 
-    padding: 15px 30px;
-    background: linear-gradient(135deg, #5E0F8B 0%, #3e0a5c 100%); /* Brand purple */
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-weight: bold;
+    padding: 16px 32px; 
+    background: #5E0F8B; /* Your brand purple */
+    color: white; 
+    border: none; 
+    border-radius: 50px; 
+    font-weight: bold; 
+    font-size: 14px;
     cursor: pointer;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-    transition: transform 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    background: #4a0c6d;
+    transform: translateY(-2px);
+    box-shadow: 0px 12px 20px rgba(0,0,0,0.4);
   }
 
   button:active {
+    transform: translateY(1px);
     transform: scale(0.95);
   }
 
-  /* 6. BRUTE-FORCE LOCKDOWN: Hide internal MindAR UI elements */
+  /* 6. BRUTE-FORCE LOCKDOWN: Forces internal MindAR elements to disappear */
   [class^="mindar-ui"], 
   [id^="mindar-ui"],
   .mindar-ui-overlay,
-  .mindar-ui-loading { 
+  .mindar-ui-loading,
+  .mindar-ui-compatibility { 
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+    pointer-events: none !important;
   }
 
-  /* 7. CANVAS COLOR: Ensure the background remains black until camera is live */
+  /* 7. CANVAS RESET: Keeps background black until camera initializes */
   a-scene, .a-canvas {
     background-color: #000 !important;
   }
